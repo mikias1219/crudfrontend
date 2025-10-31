@@ -71,8 +71,8 @@ export default function Album() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !tracks || (!audioFile && !editingAlbum)) {
-      alert("Please fill all fields and select audio.");
+    if (!title || !tracks) {
+      alert("Please fill all required fields.");
       return;
     }
 
@@ -80,14 +80,18 @@ export default function Album() {
       setUploading(true);
 
       if (editingAlbum) {
-        alert("Edit not implemented yet"); // Update backend PUT endpoint if needed
+        await albumAPI.update(editingAlbum.Album_id, {
+          Album_title: title,
+          Total_tracks: tracks,
+          audioFile: audioFile ?? undefined,
+        });
+        alert("Album updated successfully");
       } else {
         await albumAPI.create({
-  Album_title: title,
-  Total_tracks: tracks,
-  audioFile: audioFile ?? undefined, // ✅ converts null → undefined safely
-});
-
+          Album_title: title,
+          Total_tracks: tracks,
+          audioFile: audioFile ?? undefined,
+        });
         alert("Album created successfully");
       }
 
@@ -130,8 +134,17 @@ export default function Album() {
               <label className="block font-medium">Total Tracks</label>
               <input
                 type="number"
-                value={tracks}
-                onChange={(e) => setTracks(parseInt(e.target.value))}
+                value={isNaN(tracks) ? '' : tracks}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '') {
+                    setTracks(1);
+                  } else {
+                    const numValue = parseInt(value, 10);
+                    setTracks(isNaN(numValue) ? 1 : numValue);
+                  }
+                }}
+                min="1"
                 className="w-full border p-2 rounded"
               />
             </div>

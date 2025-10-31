@@ -4,13 +4,14 @@ import { buttons } from "../page"
 import { useState, useEffect } from "react" // Added useEffect import
 import SongCard from "@/components/forms/SongsFormCard"
 import Searchbar from "@/components/ui/Searchbar"
-// import { songAPI } from '@/lib/api'; // Added API import
+import { songAPI } from '@/lib/songapi'; // Added API import
 
 // Add type definition for Song
 interface Song {
   Songs_id: number;
   Songs_name: string;
   Gener: string;
+  audio_url?: string;
 }
 
 export default function Song(){
@@ -91,8 +92,9 @@ export default function Song(){
                     </div>
                     {/* Passed props to SongCard component */}
                     <SongCard 
-                        onClose={handleCloseCard} 
-            
+                        onClose={handleCloseCard}
+                        editingSong={editingSong}
+                        onSuccess={handleSongSuccess}
                     />
                 </div>
             ) : (
@@ -112,22 +114,32 @@ export default function Song(){
                     <div className="mt-6 p-4">
                         {loading ? (
                             <p className="text-center">Loading songs...</p>
+                        ) : songs.length === 0 ? (
+                            <p className="text-center text-gray-500 py-8">No songs found. Click + to add a song.</p>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {songs.map((song) => (
-                                    <div key={song.Songs_id} className="border p-4 rounded shadow bg-white">
-                                        <h3 className="text-lg font-semibold">{song.Songs_name}</h3>
-                                        <p className="text-gray-600">Genre: {song.Gener}</p>
+                                    <div key={song.Songs_id} className="border p-4 rounded shadow bg-white hover:shadow-lg transition-shadow">
+                                        <h3 className="text-lg font-semibold mb-2">{song.Songs_name}</h3>
+                                        <p className="text-gray-600 mb-3">Genre: <span className="font-medium">{song.Gener}</span></p>
+                                        {song.audio_url && (
+                                            <div className="mb-3">
+                                                <audio controls className="w-full">
+                                                    <source src={`http://127.0.0.1:8002${song.audio_url}`} />
+                                                    Your browser does not support the audio element.
+                                                </audio>
+                                            </div>
+                                        )}
                                         <div className="mt-2 flex gap-2">
                                             <button
                                                 onClick={() => handleEditSong(song)}
-                                                className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
+                                                className="flex-1 bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition-colors"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteSong(song.Songs_id)}
-                                                className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                                                className="flex-1 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
                                             >
                                                 Delete
                                             </button>

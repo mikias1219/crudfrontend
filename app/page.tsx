@@ -1,7 +1,7 @@
 'use client'
 import Image from "next/image";
-import Header from "@/components/layout/Header.tsx";
-import Searchbar from "@/components/ui/Searchbar.tsx";
+import Header from "@/components/layout/Header";
+import Searchbar from "@/components/ui/Searchbar";
 import { useState } from "react";
 import Album from './album/page';
 import Artist from "./artist/page";
